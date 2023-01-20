@@ -139,7 +139,7 @@ mod tests {
                 paymenttypedescription: "".into(),
                 baseamount: 0u32,
                 currencyiso3a: "".into(),
-                pan: Some(Pan::new("4000000000000000").expect("failed to set pan")),
+                pan: Some(Pan::new("4000000000000000").unwrap()),
                 expirydate: "".into(),
                 securitycode: "".into(),
             })),

@@ -17,7 +17,7 @@ pub async fn handle_transaction(Json(req): Json<gateway::Request>) -> impl IntoR
             (StatusCode::OK, Json(res))
         }
         Err(error) => match error {
-            Error::FieldError(_) | Error::ValidationError(_) => {
+            _ => {
                 let res = gateway::Response::error(&error, &req);
                 (StatusCode::BAD_REQUEST, Json(res))
             }
