@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::{errors::Error, operation::Operation, useful};
+use crate::{errors::Error, operation::Operation};
 
 use super::Request;
 
@@ -26,42 +26,27 @@ pub struct Response {
 
 impl Response {
     pub fn success(op: &Operation) -> Self {
-        let masked_pan = useful::mask_pan(&op.pan());
+        let maskedpan = match op.pan() {
+            Some(pan) => pan.get_masked(),
+            None => String::new()
+        };
         Self {
-            maskedpan: Some(masked_pan),
-            expirydate: Some(op.expirydate().to_owned()),
+            maskedpan:              Some(maskedpan),
+            expirydate:             Some(op.expirydate().to_owned()),
             requesttypedescription: Some(op.requesttypedescription().to_owned()),
             accounttypedescription: Some(op.accounttypedescription().to_owned()),
             paymenttypedescription: Some(op.paymenttypedescription().to_owned()),
-            baseamount: Some(op.baseamount()),
-            currencyiso3a: Some(op.currencyiso3a().to_owned()),
+            baseamount:             Some(op.baseamount()),
+            currencyiso3a:          Some(op.currencyiso3a().to_owned()),
             ..Default::default()
         }
     }
 
-    pub fn error(error: &Error, req: &Request) -> Self {
-        let masked_pan = useful::mask_pan(&req.pan);
+    pub fn error(error: &Error, _req: &Request) -> Self {
         match error {
-            Error::ValidationError(_) => Self {
-                errormessage: Some(error.to_string()),
-                maskedpan: Some(masked_pan),
-                expirydate: Some(req.expirydate.clone()),
-                requesttypedescription: Some(req.requesttypedescription.clone()),
-                accounttypedescription: Some(req.accounttypedescription.clone()),
-                paymenttypedescription: Some(req.paymenttypedescription.clone()),
-                baseamount: Some(req.baseamount),
-                currencyiso3a: Some(req.currencyiso3a.clone()),
-                ..Default::default()
-            },
-            Error::FieldError(_) => Self {
-                errormessage: Some(error.to_string()),
-                maskedpan: Some(masked_pan),
-                expirydate: Some(req.expirydate.clone()),
+            Error::ValidationError(_) | Error::FieldError(_) => Self {
+                errormessage:           Some(error.to_string()),
                 requesttypedescription: Some(String::from("ERROR")),
-                accounttypedescription: None,
-                paymenttypedescription: None,
-                baseamount: None,
-                currencyiso3a: None,
                 ..Default::default()
             },
         }

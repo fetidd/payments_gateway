@@ -8,3 +8,5 @@ pub enum Error {
     #[error("FieldError: {0}")]
     FieldError(String),
 }
+
+pub type GwResult<T> = Result<T, Error>;
