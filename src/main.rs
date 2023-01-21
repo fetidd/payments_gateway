@@ -7,6 +7,7 @@ mod useful;
 use crate::{errors::Error, operation::Operation};
 use axum::{extract::Json, response::IntoResponse, routing::post, Router, Server};
 use hyper::StatusCode;
+use seaorm::prelude::*;
 
 pub async fn handle_transaction(Json(req): Json<gateway::Request>) -> impl IntoResponse {
     println!("Received: {req:#?}");
@@ -16,19 +17,17 @@ pub async fn handle_transaction(Json(req): Json<gateway::Request>) -> impl IntoR
             let res = gateway::Response::success(&op);
             (StatusCode::OK, Json(res))
         }
-        Err(error) => match error {
-            _ => {
-                let res = gateway::Response::error(&error, &req);
-                (StatusCode::BAD_REQUEST, Json(res))
-            }
+        Err(error) => {
+            let res = gateway::Response::error(&error, &req);
+            (StatusCode::BAD_REQUEST, Json(res))
         },
     }
 }
 
 #[tokio::main]
 async fn main() {
+    let db = Database::connect("postgres://db:password@localhost/core").await?;
     let app = Router::new().route("/", post(handle_transaction));
-
     Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
         .await
