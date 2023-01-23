@@ -15,16 +15,14 @@ use sea_orm::{prelude::Uuid, ActiveModelTrait, Set};
 pub async fn handle_transaction(Json(req): Json<request::Request>) -> impl IntoResponse {
     println!("Received: {req:#?}");
     let op = Operation::from_request(&req);
-    match op {
-        Ok(op) => {
-            let res = response::Response::success(&op);
-            (StatusCode::OK, Json(res))
-        }
-        Err(error) => {
-            let res = response::Response::error(&error, &req);
-            (StatusCode::BAD_REQUEST, Json(res))
-        }
+    if let Err(error) = op {
+        let res = response::Response::error(&error, &req);
+        return (StatusCode::BAD_REQUEST, Json(res));
     }
+    let res = response::Response::success(&op.unwrap());
+    // send to bank
+    // save to db
+    (StatusCode::OK, Json(res))
 }
 
 #[tokio::main]
