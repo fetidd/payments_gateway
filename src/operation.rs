@@ -1,4 +1,9 @@
-use crate::{constant::*, errors::{Error, GwResult}, gateway::{Request, Pan}};
+use crate::{
+    constant::*,
+    errors::{Error, GwResult},
+    pan::Pan,
+    request::Request,
+};
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct Operation {
@@ -109,8 +114,7 @@ mod tests {
 
     #[test]
     fn test_set_requesttypedescription() {
-        let tests = [
-            (
+        let tests = [(
             Operation::default(),
             "AUTH",
             Ok(Operation {
@@ -123,8 +127,7 @@ mod tests {
                 expirydate: "".into(),
                 securitycode: "".into(),
             }),
-        ),
-        ];
+        )];
         for (op, value, exp) in tests {
             assert_eq!(op.set_requesttypedescription(value), exp);
         }
@@ -133,17 +136,25 @@ mod tests {
     #[test]
     fn test_set_pan() {
         let tests = [
-            (Operation::default(),"4000000000000000",Ok(Operation {
-                requesttypedescription: "".into(),
-                accounttypedescription: "".into(),
-                paymenttypedescription: "".into(),
-                baseamount: 0u32,
-                currencyiso3a: "".into(),
-                pan: Some(Pan::new("4000000000000000").unwrap()),
-                expirydate: "".into(),
-                securitycode: "".into(),
-            })),
-            (Operation::default(),"40000",Err(Error::ValidationError("pan is invalid length: 5".into()))),
+            (
+                Operation::default(),
+                "4000000000000000",
+                Ok(Operation {
+                    requesttypedescription: "".into(),
+                    accounttypedescription: "".into(),
+                    paymenttypedescription: "".into(),
+                    baseamount: 0u32,
+                    currencyiso3a: "".into(),
+                    pan: Some(Pan::new("4000000000000000").unwrap()),
+                    expirydate: "".into(),
+                    securitycode: "".into(),
+                }),
+            ),
+            (
+                Operation::default(),
+                "40000",
+                Err(Error::ValidationError("pan is invalid length: 5".into())),
+            ),
         ];
         for (op, value, exp) in tests {
             assert_eq!(op.set_pan(value), exp);

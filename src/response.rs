@@ -1,8 +1,6 @@
 use serde::Serialize;
 
-use crate::{errors::Error, operation::Operation};
-
-use super::Request;
+use crate::{errors::Error, operation::Operation, request::Request};
 
 #[derive(Debug, Default, Serialize)]
 pub struct Response {
